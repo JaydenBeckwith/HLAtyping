@@ -27,7 +27,7 @@ This will ensure all Docker images are available locally before running the pipe
 
 ## Docker Images Used
 
-The following containers will be automatically pulled when the pipeline runs:
+The following containers will be automatically pulled when the shell script runs:
 
 | Tool          | Docker Image                                      |
 |---------------|----------------------------------------------------|
