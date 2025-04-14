@@ -5,7 +5,7 @@
 
 set -e
 
-echo "📦 Pulling Docker containers..."
+echo "Pulling Docker containers..."
 
 docker pull biocontainers/bwa:v0.7.17_cv1
 
@@ -17,4 +17,4 @@ docker pull quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0
 
 docker pull fred2/optitype
 
-echo "✅ Done pulling all containers."
+echo "Done pulling all containers."

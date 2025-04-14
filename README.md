@@ -13,7 +13,7 @@ Currently only supports paired-end reads.
 - [Docker](https://www.docker.com/products/docker-desktop) installed and running
 - Python 3.7+
 
-### 🛠️ Pull Docker Images Automatically
+### Pull Docker Images Automatically
 
 You can use the included `pull_dockers.sh` to pull all required Docker containers:
 
@@ -99,7 +99,7 @@ python3 pipeline.py \
 
 ---
 
-## 🧪 Output Per Sample
+## Output Per Sample
 
 Each sample folder will be populated with:
 
@@ -111,6 +111,6 @@ Each sample folder will be populated with:
 
 ---
 
-## 👨‍🔬 Author
+## Author
 Jayden Beckwith
 
