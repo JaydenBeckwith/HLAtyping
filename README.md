@@ -15,10 +15,10 @@ Currently only supports paired-end reads.
 
 ### 🛠️ Pull Docker Images Automatically
 
-You can use the included `Makefile` to pull all required Docker containers:
+You can use the included `pull_dockers.sh` to pull all required Docker containers:
 
 ```bash
-make pull_dockers
+./pull_dockers.sh
 ```
 
 This will ensure all Docker images are available locally before running the pipeline.
