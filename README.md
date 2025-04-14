@@ -13,10 +13,15 @@ Currently only supports paired-end reads.
 - [Docker](https://www.docker.com/products/docker-desktop) installed and running
 - Python 3.7+
 
-Install Python packages (optional, for development only):
+### 🛠️ Pull Docker Images Automatically
+
+You can use the included `Makefile` to pull all required Docker containers:
+
 ```bash
-pip install -r requirements.txt
+make pull_dockers
 ```
+
+This will ensure all Docker images are available locally before running the pipeline.
 
 ---
 
