@@ -1,0 +1,2 @@
+# HLAtyping
+HLA typing pipeline 
