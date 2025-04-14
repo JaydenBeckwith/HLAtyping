@@ -84,7 +84,7 @@ Place this in your repo or project folder and pass its path using `--optitype_co
 ## How to Run
 
 ```bash
-python3 hla_pipeline.py \
+python3 pipeline.py \
   --input_dir /path/to/samples \
   --genome_fasta /path/to/GRCh38.primary_assembly.genome.fa \
   --optitype_config /path/to/optitype_config.ini
