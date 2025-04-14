@@ -108,6 +108,7 @@ Each sample folder will be populated with:
 - `aligned.sam`, `aligned.bam`, `aligned.sorted.bam` – Alignment files
 - `HLA.bam`, `HLA_R1.fastq`, `HLA_R2.fastq` – HLA reads only
 - `OptiType/` – Final HLA typing output
+  - For the OptiType output you should expect a tsv with only the optimal solution by default with a coverage distribution of the predicted alleles.   
 
 ---
 
