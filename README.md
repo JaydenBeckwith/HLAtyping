@@ -1,4 +1,4 @@
-# 🧬 HLA Typing Pipeline
+# HLA Typing Pipeline
 
 This pipeline performs automated HLA genotyping from Whole Exome Sequencing (WES) data using Dockerised bioinformatics tools.
 
