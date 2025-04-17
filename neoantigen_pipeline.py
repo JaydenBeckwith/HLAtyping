@@ -27,36 +27,40 @@ def bwa_index_if_missing(genome_fasta):
         print("[INFO] BWA index found.")
 
 def trim_and_qc(fq1, fq2, sample_name, output_dir):
-        trimmed_dir = output_dir / "Trimmed"
-        trimmed_dir.mkdir(exist_ok=True)
+    trimmed_dir = output_dir / "Trimmed"
+    trimmed_dir.mkdir(exist_ok=True)
 
-        # Run FastQC on raw reads
-        run_command([
-            "docker", "run", "--rm", "-v", f"{output_dir}:/data",
-            "staphb/fastqc:0.11.9", "fastqc", "-o", "/data",
-            f"/data/{fq1.name}", f"/data/{fq2.name}"
-        ], f"FastQC before trimming for {sample_name}")
+    # Run FastQC on raw reads
+    run_command([
+        "docker", "run", "--rm",
+        "-v", f"{fq1.parent.resolve()}:/input",
+        "-v", f"{output_dir.resolve()}:/data",
+        "staphb/fastqc:0.11.9", "fastqc", "-o", "/data",
+        f"/input/{fq1.name}", f"/input/{fq2.name}"
+    ], f"FastQC before trimming for {sample_name}")
 
-        # Run Trim Galore
-        run_command([
-            "docker", "run", "--rm", "-v", f"{output_dir}:/data",
-            "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0",
-            "trim_galore", "--paired", "-o", "/data/Trimmed",
-            f"/data/{fq1.name}", f"/data/{fq2.name}"
-        ], f"Trim Galore for {sample_name}")
+    # Run Trim Galore
+    run_command([
+        "docker", "run", "--rm",
+        "-v", f"{fq1.parent.resolve()}:/input",
+        "-v", f"{output_dir.resolve()}:/data",
+        "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0",
+        "trim_galore", "--paired", "-o", "/data/Trimmed",
+        f"/input/{fq1.name}", f"/input/{fq2.name}"
+    ], f"Trim Galore for {sample_name}")
 
-        # Identify trimmed output files
-        r1_trimmed = next(trimmed_dir.glob("*_val_1.fq.gz"))
-        r2_trimmed = next(trimmed_dir.glob("*_val_2.fq.gz"))
+    # Identify trimmed output files
+    r1_trimmed = next(trimmed_dir.glob("*_val_1.fq.gz"))
+    r2_trimmed = next(trimmed_dir.glob("*_val_2.fq.gz"))
 
-        # Run FastQC on trimmed reads
-        run_command([
-            "docker", "run", "--rm", "-v", f"{output_dir}:/data",
-            "staphb/fastqc:0.11.9", "fastqc", "-o", "/data",
-            f"/data/Trimmed/{r1_trimmed.name}", f"/data/Trimmed/{r2_trimmed.name}"
-        ], f"FastQC after trimming for {sample_name}")
+    # Run FastQC on trimmed reads
+    run_command([
+        "docker", "run", "--rm", "-v", f"{output_dir}:/data",
+        "staphb/fastqc:0.11.9", "fastqc", "-o", "/data",
+        f"/data/Trimmed/{r1_trimmed.name}", f"/data/Trimmed/{r2_trimmed.name}"
+    ], f"FastQC after trimming for {sample_name}")
 
-        return r1_trimmed, r2_trimmed
+    return r1_trimmed, r2_trimmed
 
 
 def align_and_index(fq1, fq2, sample_name, genome_fasta, output_dir):
