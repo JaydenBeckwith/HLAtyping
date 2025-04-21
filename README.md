@@ -1,5 +1,5 @@
-
-# HLA Typing and Neoantigen Prediction Pipeline
+# ImmunoTools
+## HLA Typing and Neoantigen Prediction Pipeline
 
 
 This repository contains two integrated pipelines for analysing Whole Exome Sequencing (WES) data:
