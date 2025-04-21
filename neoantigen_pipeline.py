@@ -3,6 +3,7 @@ import subprocess
 from pathlib import Path
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import gzip
 
 def run_command(cmd, description=""):
     """Run a shell command and handle errors with logging."""
@@ -152,9 +153,14 @@ def run_mutect2(tumor_bam, normal_bam, sample_id, genome_fasta, output_dir):
     return filtered_vcf
 
 def filter_vcf_standard_chroms(vcf_path: Path, output_path: Path):
-    """Filter VCF to keep only standard chromosomes (1–22, X, Y, MT)."""
+    """Filter VCF (plain or .gz) to keep only standard chromosomes (1–22, X, Y, MT)."""
     standard_chroms = {str(i) for i in range(1, 23)} | {"X", "Y", "MT", "M"}
-    with vcf_path.open("r") as infile, output_path.open("w") as outfile:
+
+    # Automatically handle .gz files
+    open_func = gzip.open if vcf_path.suffix == ".gz" else open
+    mode = "rt" if vcf_path.suffix == ".gz" else "r"
+
+    with open_func(vcf_path, mode) as infile, output_path.open("w") as outfile:
         for line in infile:
             if line.startswith("#"):
                 outfile.write(line)
@@ -162,46 +168,70 @@ def filter_vcf_standard_chroms(vcf_path: Path, output_path: Path):
                 chrom = line.split()[0].replace("chr", "")
                 if chrom in standard_chroms:
                     outfile.write(line)
+
     print(f"[INFO] Filtered VCF written to: {output_path}")
 
-def run_vep(filtered_vcf_path: Path, output_dir: Path, vep_cache: Path, plugin_dir: Path):
-    """Run VEP with local cache and plugins for Frameshift and Wildtype annotations."""
+def run_vep(filtered_vcf_path: Path, output_dir: Path, vep_cache: Path, plugin_dir: Path, fasta_path: Path):
+    """
+    Run VEP with local cache, plugins (Wildtype & Frameshift), and reference FASTA.
+
+    Args:
+        filtered_vcf_path (Path): Path to the filtered VCF input file.
+        output_dir (Path): Output directory where annotated VCF will be saved.
+        vep_cache (Path): Path to the local VEP cache directory.
+        plugin_dir (Path): Path to the directory containing VEP plugin files.
+        fasta_path (Path): Path to the reference genome FASTA file (e.g., GRCh38.primary_assembly.genome.fa).
+    """
     vep_vcf = output_dir / "annotated.vcf.gz"
 
     run_command([
         "docker", "run", "--rm",
         "-v", f"{filtered_vcf_path.parent.as_posix()}:/vcfdir",
-        "-v", f"{output_dir.as_posix()}:/data",
+        "-v", f"{output_dir.as_posix()}:/data3",
         "-v", f"{vep_cache.as_posix()}:/opt/vep/.vep",
         "-v", f"{plugin_dir.as_posix()}:/plugins",
+        "-v", f"{fasta_path.parent.as_posix()}:/ref",
         "ensemblorg/ensembl-vep",
         "vep", "-i", f"/vcfdir/{filtered_vcf_path.name}",
-               "-o", "/data/annotated.vcf.gz",
+               "-o", "/data3/annotated.vcf.gz",
         "--format", "vcf",
         "--vcf", "--verbose", "--assembly", "GRCh38",
         "--symbol", "--canonical", "--distance", "5",
-        "--plugin", "Wildtype", "--plugin", "Frameshift",
+        "--plugin", "Wildtype,/ref/" + fasta_path.name,
+        "--plugin", "Frameshift,/ref/" + fasta_path.name,
+        "--fasta", f"/ref/{fasta_path.name}",
         "--offline", "--cache",
         "--dir_plugins", "/plugins",
         "--dir_cache", "/opt/vep/.vep",
+        "--tsl", "--biotype", "--hgvs",
+        "--terms", "SO",
         "--force_overwrite",
         "--compress_output", "bgzip",
         "--fork", "4"
-    ], "VEP annotation using local cache and plugins")
+    ], "VEP annotation using local cache, plugins, and reference FASTA")
 
+    print(f"[DEBUG] Files in output directory after VEP: {list(output_dir.iterdir())}")
     return vep_vcf
 
-def run_pvacseq(vcf_file: Path, sample_id: str, hla_list: list, output_dir: Path, n_threads: int = 4):
-    """Run pVACseq to predict neoantigens from VEP-annotated variants using multiple threads."""
+def run_pvacseq(sample_id: str, hla_list: list, output_dir: Path):
+    """
+    Runs pVACseq using the annotated VCF in the output directory.
+    """
+    vcf_file = output_dir / "annotated.vcf.gz"
+    if not vcf_file.exists():
+        raise FileNotFoundError(f"Expected annotated VCF not found at: {vcf_file}")
+
     hla_str = ",".join(hla_list)
+
     run_command([
-        "docker", "run", "--rm", "-v", f"{output_dir}:/data",
+        "docker", "run", "--rm",
+        "-v", f"{output_dir}:/data3",
         "griffithlab/pvactools",
         "pvacseq", "run",
-        f"/data/{vcf_file.name}", sample_id, hla_str,
-        "MHCflurry", "/data/pvacseq_output",
-        "-t", str(n_threads)
-    ], f"Run pVACseq for neoantigen prediction using {n_threads} threads")
+        f"/data3/{vcf_file.name}", sample_id, hla_str,
+        "MHCflurry", "/data3/pvacseq_output",
+        "-t", "4"
+    ], "Run pVACseq for neoantigen prediction")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -247,8 +277,8 @@ def main():
     filtered_vcf = run_mutect2(tumor_bam, normal_bam, args.sampleid, genome_fasta, output_dir)
     vcf_for_vep = output_dir / "filtered_for_vep.vcf"
     filter_vcf_standard_chroms(filtered_vcf, vcf_for_vep)
-    annotated_vcf = run_vep(vcf_for_vep, output_dir, vep_cache, plugin_dir)
-    run_pvacseq(annotated_vcf, args.sampleid, args.hla, output_dir, args.threads)
+    run_vep(vcf_for_vep, output_dir, vep_cache, plugin_dir, genome_fasta)
+    run_pvacseq(args.sampleid, args.hla, output_dir, args.threads)
 
 
 if __name__ == "__main__":
