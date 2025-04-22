@@ -213,7 +213,7 @@ def run_vep(filtered_vcf_path: Path, output_dir: Path, vep_cache: Path, plugin_d
     print(f"[DEBUG] Files in output directory after VEP: {list(output_dir.iterdir())}")
     return vep_vcf
 
-def run_pvacseq(sample_id: str, hla_list: list, output_dir: Path):
+def run_pvacseq(sample_id: str, hla_list: list, output_dir: Path, threads: int):
     """
     Runs pVACseq using the annotated VCF in the output directory.
     """
@@ -230,7 +230,7 @@ def run_pvacseq(sample_id: str, hla_list: list, output_dir: Path):
         "pvacseq", "run",
         f"/data3/{vcf_file.name}", sample_id, hla_str,
         "MHCflurry", "/data3/pvacseq_output",
-        "-t", "4"
+        "-t", str(threads)
     ], "Run pVACseq for neoantigen prediction")
 
 def main():
