@@ -15,6 +15,7 @@ This repository contains two integrated pipelines for analysing Whole Exome Sequ
 
 - [Docker](https://www.docker.com/products/docker-desktop) installed and running
 - Python 3.7+
+- Snakemake (optional)
 
 ### Pull All Required Docker Images
 
