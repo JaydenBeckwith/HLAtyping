@@ -1,0 +1,21 @@
+samples:
+  - 48354
+
+paths:
+  genome_fasta: "/absolute/path/to/GRCh38.primary_assembly.genome.fa"
+  optitype_config: "/absolute/path/to/optitype_config.ini"
+  vep_cache: "/absolute/path/to/homo_sapiens"
+  plugin_dir: "/absolute/path/to/vep_plugins"
+
+docker_images:
+  hla_typing: "fred2/optitype:latest"
+  hla_dependencies:
+    - "biocontainers/bwa:v0.7.17_cv1"
+    - "biocontainers/samtools:v1.3.1_cv4"
+    - "staphb/fastqc:0.11.9"
+    - "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0"
+  neoantigen_prediction: "griffithlab/pvactools:latest"
+  neo_dependencies:
+    - "broadinstitute/picard"
+    - "broadinstitute/gatk"
+    - "ensemblorg/ensembl-vep"

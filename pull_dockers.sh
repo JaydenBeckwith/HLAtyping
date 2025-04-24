@@ -20,4 +20,4 @@ docker pull broadinstitute/gatk
 docker pull ensemblorg/ensembl-vep
 docker pull griffithlab/pvactools
 
-echo "✅ Done pulling all required containers."
+echo "Done pulling all required containers."

@@ -20,10 +20,45 @@ This repository contains two integrated pipelines for analysing Whole Exome Sequ
 
 Use the included shell script to download all necessary containers:
 
+##  Running the Pipeline
+
+### Step 1: Pull Docker images
 ```bash
 ./pull_dockers.sh
 ```
 
+### Step 2: Run Snakemake
+```bash
+snakemake --use-singularity -j 4
+```
+
+> If you're using Docker locally instead of Singularity, you can still use `--use-singularity` and Snakemake will handle it under the hood. Make sure Docker is running and the container names in `pipeline_config.yaml` are correct.
+
+This will execute:
+- HLA typing using `hla_pipeline.py`
+- Neoantigen prediction using `neoantigen_pipeline.py`, using output HLA alleles
+
+## Main Snakemake Structure
+```
+ImmunoTools/
+├── Snakefile
+├── pipeline_config.yaml
+├── data/
+│   ├── hla/
+│   │   ├── <sample>_normal_R1.fastq.gz
+│   │   └── <sample>_normal_R2.fastq.gz
+│   └── neo/
+│       ├── <sample>_tumor_R1.fastq.gz
+│       ├── <sample>_tumor_R2.fastq.gz
+│       ├── <sample>_normal_R1.fastq.gz
+│       └── <sample>_normal_R2.fastq.gz
+├── results/
+│   ├── hla/
+│   │   └── <sample>_hla_alleles.txt
+│   └── neoantigen/
+│       └── <sample>/
+├── pull_dockers.sh
+```
 This will pull the following versions:
 
 | Tool          | Docker Image & Version                             |
@@ -39,6 +74,8 @@ This will pull the following versions:
 | pVACtools     | `griffithlab/pvactools`                            |
 
 ---
+
+You can also run the pipeline manually using raw commands.
 
 ## HLA Typing Pipeline
 
@@ -162,6 +199,25 @@ python3 neoantigen_pipeline.py \
   --plugin_dir ./vep_plugins \
   --threads 4
 ```
+### VEP Cache & Plugin Setup
+To run the neoantigen pipeline, you will need the Ensembl VEP cache and plugin directory:
+
+- **VEP Cache** (`--vep_cache`):
+  - Download from Ensembl using VEP installer:
+    ```bash
+    vep_install --AUTO c --SPECIES homo_sapiens --ASSEMBLY GRCh38 --PLUGINS all --DESTDIR ./vep_data
+    ```
+  - Set `--vep_cache ./vep_data/homo_sapiens`
+
+- **Plugin Directory** (`--plugin_dir`):
+  - Usually created during VEP install in the same destination directory:
+    ```bash
+    --plugin_dir ./vep_data/Plugins
+    ```
+  - If missing, you can clone manually:
+    ```bash
+    git clone https://github.com/Ensembl/VEP_plugins.git ./vep_plugins
+    ```
 
 ---
 
