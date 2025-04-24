@@ -45,13 +45,23 @@ ImmunoTools/
 ├── pipeline_config.yaml
 ├── data/
 │   ├── hla/
-│   │   ├── <sample>_normal_R1.fastq.gz
-│   │   └── <sample>_normal_R2.fastq.gz
+│   │   ├── SAMPLE_001/
+│   │   │   ├── SAMPLE_001_normal_1.fastq.gz
+│   │   │   └── SAMPLE_001_normal_2.fastq.gz
+│   │   ├── SAMPLE_002/
+│   │   │   ├── SAMPLE_002_normal_1.fastq.gz
+│   │   │   └── SAMPLE_002_normal_2.fastq.gz
 │   └── neo/
-│       ├── <sample>_tumor_R1.fastq.gz
-│       ├── <sample>_tumor_R2.fastq.gz
-│       ├── <sample>_normal_R1.fastq.gz
-│       └── <sample>_normal_R2.fastq.gz
+│       ├── SAMPLE_001/
+│       │   ├── SAMPLE_001_tumor_R1.fastq.gz
+│       │   ├── SAMPLE_001_tumor_R2.fastq.gz
+│       │   ├── SAMPLE_001_normal_R1.fastq.gz
+│       │   └── SAMPLE_001_normal_R2.fastq.gz
+│       └── SAMPLE_002/
+│           ├── SAMPLE_002_tumor_R1.fastq.gz
+│           ├── SAMPLE_002_tumor_R2.fastq.gz
+│           ├── SAMPLE_002_normal_R1.fastq.gz
+│           └── SAMPLE_002_normal_R2.fastq.gz
 ├── results/
 │   ├── hla/
 │   └── neoantigen/
