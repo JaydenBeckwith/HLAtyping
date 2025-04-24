@@ -54,9 +54,7 @@ ImmunoTools/
 │       └── <sample>_normal_R2.fastq.gz
 ├── results/
 │   ├── hla/
-│   │   └── <sample>_hla_alleles.txt
 │   └── neoantigen/
-│       └── <sample>/
 ├── pull_dockers.sh
 ```
 This will pull the following versions:
