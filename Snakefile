@@ -16,7 +16,7 @@ rule run_hla:
   input:
     fasta = paths["genome_fasta"],
     config_file = paths["optitype_config"],
-    input_dir = "data/hla"
+    input_dir = lambda wc: f"data/hla/{wc.sample}"
   output:
     hla_file = "results/hla/{sample}_hla_alleles.txt"
   container:
