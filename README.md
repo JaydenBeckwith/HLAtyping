@@ -27,21 +27,22 @@ Use the included shell script to download all necessary containers:
 ./pull_dockers.sh
 ```
 
-### Step 2: Run Snakemake
+### Step 2: Run Nextflow
 ```bash
-snakemake --use-singularity -j 4
+nextflow run main.nf -profile docker
 ```
 
-> If you're using Docker locally instead of Singularity, you can still use `--use-singularity` and Snakemake will handle it under the hood. Make sure Docker is running and the container names in `pipeline_config.yaml` are correct.
+> Make sure Docker is running and the container names in `pipeline_config.yaml` are correct.
 
 This will execute:
 - HLA typing using `hla_pipeline.py`
 - Neoantigen prediction using `neoantigen_pipeline.py`, using output HLA alleles
 
-## Main Snakemake Structure
+## Main Nextflow Structure
 ```
 ImmunoTools/
-├── Snakefile
+├── main.nf
+├── nextflow.config
 ├── pipeline_config.yaml
 ├── data/
 │   ├── hla/
